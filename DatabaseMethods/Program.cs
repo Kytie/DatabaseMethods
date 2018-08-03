@@ -19,8 +19,11 @@ namespace DatabaseMethods
         private static void GetGamesEntityFrameWork()
         {
             var db = new GamesDb();
-            var query = from game in db.Games
-                        join genre in db.Genres on game.Genre.Id equals genre.Id
+            var games = db.Games;
+            var genres = db.Genres;
+
+            var query = from game in games
+                        join genre in genres on game.Genre.Id equals genre.Id
                         select new
                         {
                             Id = game.Id,
@@ -28,7 +31,26 @@ namespace DatabaseMethods
                             Genre = genre
                         };
 
+            var query2 = games.Join(
+                            genres,
+                            game => game.Genre.Id,
+                            genre => genre.Id,
+                            (game, genre) => new
+                            {
+                                Id = game.Id,
+                                Name = game.Name,
+                                Genre = genre
+                            });
+
+            Console.WriteLine("\nQuery Syntax");
             foreach (var game in query)
+            {
+                Game newGame = new Game(game.Id, game.Name, game.Genre);
+                Console.WriteLine(newGame.ToString());
+            }
+
+            Console.WriteLine("\nMethod Syntax");
+            foreach (var game in query2)
             {
                 Game newGame = new Game(game.Id, game.Name, game.Genre);
                 Console.WriteLine(newGame.ToString());
